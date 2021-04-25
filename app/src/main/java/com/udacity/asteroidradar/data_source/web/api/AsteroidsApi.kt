@@ -8,7 +8,7 @@ import retrofit2.http.Query
 
 interface AsteroidsApi {
     @GET("planetary/apod")
-    suspend fun getImageOfTheDay(): PictureOfDay
+    suspend fun getPictureOfDay(): PictureOfDay?
 
     @GET("neo/rest/v1/feed")
     fun getAllNearingAsteroids(

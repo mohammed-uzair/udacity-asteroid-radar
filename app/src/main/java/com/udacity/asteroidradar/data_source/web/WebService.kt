@@ -9,15 +9,20 @@ import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.concurrent.TimeUnit
 
 const val BASE_URL = "https://api.nasa.gov/"
-const val API_KEY = "TVGhdaeB9KcZ77oGxf2duYJBmuHr30X5D8adcSuT"
+const val API_KEY =
+    "TVGhdaeB9KcZ77oGxf2duYJBmuHr30X5D8adcSuT"//You can use 'DEMO_KEY' or please generate a key from (https://api.nasa.gov/) and paste it here
 
 private val loggingInterceptor = HttpLoggingInterceptor().apply {
     level = HttpLoggingInterceptor.Level.BODY
 }
 
 private val client: OkHttpClient = OkHttpClient().newBuilder().apply {
+    readTimeout(40, TimeUnit.SECONDS)
+    connectTimeout(40, TimeUnit.SECONDS)
+
     addInterceptor { chain ->
         val original: Request = chain.request()
         val originalHttpUrl: HttpUrl = original.url

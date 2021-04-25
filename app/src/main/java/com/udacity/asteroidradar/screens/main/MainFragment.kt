@@ -5,9 +5,11 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.data_source.database.AsteroidsDatabase
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
+import com.udacity.asteroidradar.models.Asteroid
 import com.udacity.asteroidradar.repository.AsteroidRepository
 import com.udacity.asteroidradar.view_models.MainViewModel
 import com.udacity.asteroidradar.view_models.view_models_factory.MainViewModelFactory
@@ -16,13 +18,12 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @ExperimentalCoroutinesApi
 class MainFragment : Fragment() {
     private lateinit var binding: FragmentMainBinding
-    private val adapter by lazy {
-        AsteroidsAdapter()
-    }
-
     private val viewModel: MainViewModel by lazy {
-        val asteroidDao = AsteroidsDatabase.getAppDatabase(requireContext()).asteroidDao
-        val repository = AsteroidRepository(asteroidDao)
+        val database = AsteroidsDatabase.getAppDatabase(requireContext())
+        val asteroidDao = database.asteroidDao
+        val pictureOfDayDao = database.pictureOfDayDao
+        val repository = AsteroidRepository(asteroidDao, pictureOfDayDao)
+
         val viewModelFactory = MainViewModelFactory(repository, requireActivity().application)
         ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
     }
@@ -48,6 +49,10 @@ class MainFragment : Fragment() {
     }
 
     private fun init() {
+        val adapter = AsteroidsAdapter(OnClickListener {
+            moveToAsteroidDetailScreen(it)
+        })
+
         binding.asteroidRecycler.adapter = adapter
 
         viewModel.asteroids.observe(viewLifecycleOwner, Observer {
@@ -62,18 +67,24 @@ class MainFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.show_all_menu -> {
+            R.id.current_week_asteroids -> {
+                // Get the asteroids from the server for this week
+                viewModel.getAllAsteroids()
             }
-            R.id.show_rent_menu -> {
+            R.id.today_asteroids -> {
+                // Get only today's asteroids
+                viewModel.getTodayAsteroid()
             }
-            R.id.show_buy_menu -> {
+            R.id.saved_asteroids -> {
+                // Get all the saved asteroids from the local cache
+                viewModel.getAllAsteroids()
             }
         }
         return true
     }
 
-    private fun moveToAsteroidDetailScreen() {
-//        val direction = MainFragmentDirections.actionShowDetail(Asteroid())
-//        findNavController().navigate(direction)
+    private fun moveToAsteroidDetailScreen(asteroid: Asteroid) {
+        val direction = MainFragmentDirections.actionShowDetail(asteroid)
+        findNavController().navigate(direction)
     }
 }

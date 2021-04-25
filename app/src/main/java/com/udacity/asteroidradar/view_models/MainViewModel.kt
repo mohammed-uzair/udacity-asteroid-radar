@@ -1,6 +1,7 @@
 package com.udacity.asteroidradar.view_models
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,7 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.models.Asteroid
 import com.udacity.asteroidradar.models.PictureOfDay
 import com.udacity.asteroidradar.repository.AsteroidRepository
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val asteroidRepository: AsteroidRepository, application: Application) :
@@ -17,32 +19,49 @@ class MainViewModel(private val asteroidRepository: AsteroidRepository, applicat
         const val TAG = "MainViewModel"
     }
 
-    private var _imageOfTheDay = MutableLiveData<PictureOfDay?>()
-    var imageOfTheDay: LiveData<PictureOfDay?> = _imageOfTheDay
+    private var _pictureOfDay = MutableLiveData<PictureOfDay?>()
+    var imageOfTheDay: LiveData<PictureOfDay?> = _pictureOfDay
 
     private var _asteroids = MutableLiveData<List<Asteroid>>(listOf())
     var asteroids: LiveData<List<Asteroid>> = _asteroids
 
     init {
-        imageOfTheDay()
+        pictureOfDay()
         getAllAsteroids()
     }
 
-    private fun imageOfTheDay() {
-        viewModelScope.launch {
-            //Get the Picture Of The Day from the data source
-            val image = asteroidRepository.getImageOfTheDay()
-            _imageOfTheDay.postValue(image)
+    private fun pictureOfDay() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                asteroidRepository.getPictureOfDay().collect {
+                    _pictureOfDay.postValue(it)
+                }
+            } catch (exception: Exception) {
+                Log.e(TAG, exception.message, exception)
+            }
         }
     }
 
-    private fun getAllAsteroids() {
-        try {
-            asteroidRepository.getAllNearEarthAsteroids().onEach {
+    /**
+     * Get all the Asteroids
+     */
+    fun getAllAsteroids() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                asteroidRepository.getAllAsteroids().collect {
+                    _asteroids.postValue(it)
+                }
+            } catch (exception: Exception) {
+                Log.e(TAG, exception.message, exception)
+            }
+        }
+    }
+
+    fun getTodayAsteroid() {
+        viewModelScope.launch(Dispatchers.IO) {
+            asteroidRepository.getTodayAsteroid().collect {
                 _asteroids.postValue(it)
             }
-        } catch (e: Exception) {
-            val a = "a"
         }
     }
 }

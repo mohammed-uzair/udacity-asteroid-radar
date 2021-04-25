@@ -20,13 +20,13 @@ object DateTimeUtil {
         return dateFormat.format(calendar.time) ?: ""
     }
 
-    fun getDateAfter(): String {
+    fun getDateAfter(days : Int): String {
         val dateFormat: DateFormat = SimpleDateFormat(
             Constants.API_QUERY_DATE_FORMAT,
             Locale.ENGLISH
         )
         val calendar = Calendar.getInstance(Locale.ENGLISH)
-        calendar.add(Calendar.DATE, Constants.DEFAULT_END_DATE_DAYS)
+        calendar.add(Calendar.DATE, days)
         return dateFormat.format(calendar.time) ?: ""
     }
 }

@@ -14,37 +14,36 @@
         android:layout_height="match_parent"
         android:background="@color/app_background">
 
-        <FrameLayout
-            android:id="@+id/activity_main_image_of_the_day_layout"
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
+        <ImageView
+            android:id="@+id/activity_main_image_of_the_day"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/description_image_of_the_day"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@id/guideline"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:pictureOfDay="@{viewModel.imageOfTheDay}"
+            app:srcCompat="@drawable/placeholder_picture_of_day" />
 
-            <ImageView
-                android:id="@+id/activity_main_image_of_the_day"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"
-                app:pictureOfDay="@{viewModel.imageOfTheDay}"
-                app:srcCompat="@drawable/placeholder_picture_of_day"
-                android:contentDescription="@string/description_image_of_the_day" />
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:background="#55010613"
-                android:padding="16dp"
-                android:text="@string/image_of_the_day"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                app:pictureOfDayTitle="@{viewModel.imageOfTheDay}" />
-        </FrameLayout>
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@color/image_of_day_text_background"
+            android:padding="@dimen/default_spacing"
+            android:text="@string/image_of_the_day"
+            android:textAlignment="viewStart"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/title_text_size"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/guideline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:pictureOfDayTitle="@{viewModel.imageOfTheDay}" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/asteroid_recycler"
@@ -53,9 +52,8 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/activity_main_image_of_the_day_layout"
+            app:layout_constraintTop_toTopOf="@+id/guideline"
             app:layout_constraintVertical_bias="0.0" />
 
         <ProgressBar
@@ -68,5 +66,12 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.3" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

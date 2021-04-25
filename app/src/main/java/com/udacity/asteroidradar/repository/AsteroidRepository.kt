@@ -1,51 +1,39 @@
 package com.udacity.asteroidradar.repository
 
-import android.util.Log
 import com.udacity.asteroidradar.data_source.database.dao.AsteroidDao
-import com.udacity.asteroidradar.data_source.web.Api
-import com.udacity.asteroidradar.data_source.web.utils.parseAsteroidsJsonResult
-import com.udacity.asteroidradar.models.Asteroid
-import com.udacity.asteroidradar.models.PictureOfDay
-import com.udacity.asteroidradar.util.DateTimeUtil
-import com.udacity.asteroidradar.view_models.MainViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
-import okhttp3.ResponseBody
-import org.json.JSONObject
-import retrofit2.Callback
-import retrofit2.Response
+import com.udacity.asteroidradar.data_source.database.dao.PictureOfDayDao
 
-class AsteroidRepository(private val asteroidDao: AsteroidDao?) {
-    fun getAllNearEarthAsteroids(): Flow<List<Asteroid>> = callbackFlow {
-        // Get all the near earth asteroids from web source
-        val startDate = DateTimeUtil.getCurrentDate()
-        val endDate = DateTimeUtil.getDateAfter()
+class AsteroidRepository(
+    private val asteroidDao: AsteroidDao,
+    private val pictureOfDayDao: PictureOfDayDao
+) {
+    /**
+     * This will always return the PictureOfDay from the local cached database, keeping the database
+     * as the Single Source Of Truth.
+     *
+     * This database is filled with data from the worker class that downloads the data from the
+     * NASA server on a specified periodic basis.
+     */
+    fun getPictureOfDay() = pictureOfDayDao.getPictureOfDay()
 
-        Api.AsteroidEndpoints.getAllNearingAsteroids(startDate, endDate)
-            .enqueue(object : Callback<ResponseBody> {
-                override fun onResponse(
-                    call: retrofit2.Call<ResponseBody>,
-                    response: Response<ResponseBody>
-                ) {
-                    // Raw string response
-                    val stringResponse = response.body()?.string()
-                    val allAsteroids = parseAsteroidsJsonResult(JSONObject(stringResponse ?: ""))
-                    offer(allAsteroids)
+    /**
+     * This will always return the Asteroids from the local cached database, keeping the database
+     * as the Single Source Of Truth.
+     *
+     * This database is filled with data from the worker class that downloads the data from the
+     * NASA server on a specified periodic basis.
+     */
+    fun getAllAsteroids() = asteroidDao.getAllCachedAsteroids()
 
-                    CoroutineScope(Dispatchers.IO).launch {
-                        // Save a cached version of all the asteroids in the local DB
-                        asteroidDao?.saveNearEarthAsteroids(allAsteroids)
-                    }
-                }
-
-                override fun onFailure(call: retrofit2.Call<ResponseBody>, t: Throwable) {
-                    Log.e(MainViewModel.TAG, t.message, t)
-                }
-            })
-    }
-
-    suspend fun getImageOfTheDay(): PictureOfDay = Api.AsteroidEndpoints.getImageOfTheDay()
+    /**
+     * This will always return the Asteroids of today from the local cached database, keeping the database
+     * as the Single Source Of Truth.
+     *
+     * This internally uses the #getAllAsteroids data, with filter query to filter just
+     * today's records.
+     *
+     * This database is filled with data from the worker class that downloads the data from the
+     * NASA server on a specified periodic basis.
+     */
+    fun getTodayAsteroid() = asteroidDao.getTodayAsteroids()
 }
