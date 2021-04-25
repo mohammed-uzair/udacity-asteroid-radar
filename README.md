@@ -6,3 +6,4 @@
 6. Implemented offline caching in Database as the single source of truth.
 7. Added workmanager to download new this week's Astroids and ImageOfTheDay.
 8. Implemented single source of truth by fetching all data to show in screen only from the local database.
+9. Replaced the API_KEY with the DEMO_KEY. Please change the API_KEY in the WebService class. Or you can use the default DEMO_KEY.
