@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 
 const val BASE_URL = "https://api.nasa.gov/"
 const val API_KEY =
-    "TVGhdaeB9KcZ77oGxf2duYJBmuHr30X5D8adcSuT"//You can use 'DEMO_KEY' or please generate a key from (https://api.nasa.gov/) and paste it here
+    "DEMO_KEY"//You can use 'DEMO_KEY' or please generate a key from (https://api.nasa.gov/) and paste it here
 
 private val loggingInterceptor = HttpLoggingInterceptor().apply {
     level = HttpLoggingInterceptor.Level.BODY
