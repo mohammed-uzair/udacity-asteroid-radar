@@ -20,7 +20,7 @@ object DateTimeUtil {
         return dateFormat.format(calendar.time) ?: ""
     }
 
-    fun getDateAfter(days : Int): String {
+    fun getDateAfter(days: Int): String {
         val dateFormat: DateFormat = SimpleDateFormat(
             Constants.API_QUERY_DATE_FORMAT,
             Locale.ENGLISH
@@ -28,5 +28,17 @@ object DateTimeUtil {
         val calendar = Calendar.getInstance(Locale.ENGLISH)
         calendar.add(Calendar.DATE, days)
         return dateFormat.format(calendar.time) ?: ""
+    }
+
+    fun areAsteroidsOutDated(date: String): Boolean {
+        val sdf = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT, Locale.ENGLISH)
+        val dateToCheck = sdf.parse(date)
+        val currentDate = sdf.parse(getCurrentDate())
+
+        if (dateToCheck != null && dateToCheck.before(currentDate)) {
+            return true
+        }
+
+        return false
     }
 }

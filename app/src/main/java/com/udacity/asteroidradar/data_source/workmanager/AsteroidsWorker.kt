@@ -13,6 +13,7 @@ import com.udacity.asteroidradar.data_source.web.utils.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.models.Asteroid
 import com.udacity.asteroidradar.models.PictureOfDay
 import com.udacity.asteroidradar.util.DateTimeUtil
+import com.udacity.asteroidradar.util.DateTimeUtil.areAsteroidsOutDated
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -36,15 +37,20 @@ class AsteroidsWorker(
     override suspend fun doWork(): Result {
         return try {
             fetchPictureOfDay()
-
-            fetchAsteroids().collect {
-                removeAllAsteroids()
-                saveAsteroids(it)
-            }
+            fetchAsteroids()
 
             Result.success()
         } catch (e: HttpException) {
             Result.retry()
+        }
+    }
+
+    private suspend fun fetchAsteroids() {
+        // Get Asteroids only if we do not have the latest Asteroids in our cached database
+        getAppDatabase(applicationContext).asteroidDao.getAllAsteroids().collect { asteroids ->
+            if (asteroids == null || asteroids.isEmpty() || areAsteroidsOutDated(asteroids[0].closeApproachDate)) {
+                getAsteroids().collect { saveAsteroids(it) }
+            }
         }
     }
 
@@ -53,7 +59,6 @@ class AsteroidsWorker(
             val pictureOfDay = Api.AsteroidEndpoints.getPictureOfDay()
             if (pictureOfDay != null) {
                 // Cache the picture of the day
-                removePictureOfDay()
                 savePictureOfDay(pictureOfDay)
             }
         } catch (exception: Exception) {
@@ -61,15 +66,11 @@ class AsteroidsWorker(
         }
     }
 
-    private fun removePictureOfDay() {
-        getAppDatabase(applicationContext).pictureOfDayDao.deletePictureOfDay()
-    }
-
     private fun savePictureOfDay(pictureOfDay: PictureOfDay) {
         getAppDatabase(applicationContext).pictureOfDayDao.savePictureOfDay(pictureOfDay)
     }
 
-    private fun fetchAsteroids(): Flow<List<Asteroid>> = callbackFlow {
+    private fun getAsteroids(): Flow<List<Asteroid>> = callbackFlow {
         val startDate = DateTimeUtil.getCurrentDate()
         val endDate = DateTimeUtil.getDateAfter(Constants.DEFAULT_END_DATE_DAYS)
 
@@ -85,17 +86,13 @@ class AsteroidsWorker(
                 }
 
                 override fun onFailure(call: retrofit2.Call<ResponseBody>, t: Throwable) {
-                    Toast.makeText(applicationContext, R.string.error_timeout, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, R.string.error_timeout, Toast.LENGTH_SHORT)
+                        .show()
                     Log.e(TAG, t.message, t)
                 }
             })
 
         awaitClose { this.cancel() }
-    }
-
-    private fun removeAllAsteroids() {
-        // Remove all the asteroids in the local DB
-        getAppDatabase(applicationContext).asteroidDao.removeAllAsteroids()
     }
 
     private fun saveAsteroids(asteroids: List<Asteroid>) {

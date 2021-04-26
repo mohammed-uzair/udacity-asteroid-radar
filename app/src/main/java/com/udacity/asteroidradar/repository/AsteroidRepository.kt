@@ -23,7 +23,7 @@ class AsteroidRepository(
      * This database is filled with data from the worker class that downloads the data from the
      * NASA server on a specified periodic basis.
      */
-    fun getAllAsteroids() = asteroidDao.getAllCachedAsteroids()
+    fun getAllAsteroids() = asteroidDao.getAllAsteroids()
 
     /**
      * This will always return the Asteroids of today from the local cached database, keeping the database
