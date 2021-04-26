@@ -24,7 +24,7 @@ class AsteroidRadarApplication : Application() {
     private fun setupAsteroidWorker() {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
-//            .setRequiresCharging(true)
+//            .setRequiresCharging(true) // Commented as I am unable to use it on my emulator, please enable if you want to check on physical device
             //Commenting this now as the reviewer will not be able to test immediately if this is on
             /*.setRequiresBatteryNotLow(true)
             .apply {
