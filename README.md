@@ -14,7 +14,7 @@ The app fetches all the asteroids from the NASA server API's and shows us all th
 9. Replaced the API_KEY with the DEMO_KEY. Please change the API_KEY in the WebService class. Or you can use the default DEMO_KEY.
 
 ## Walkthrough
-<img src="assets/walkthrough.webm" width="428" height="926" />
+<img src="assets/walkthrough.gif" width="428" height="926" />
 
 ## Report Issues
 
