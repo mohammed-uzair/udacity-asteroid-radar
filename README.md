@@ -1,6 +1,6 @@
 ## Asteroid Radar
 
-The app fetches all the asteroids from the NASA server API's and shows us all the nearing earth asteriods those are dangerous and those which are not.
+The app fetches all the asteroids from the NASA server API's and shows us all the nearing earth asteroids that are dangerous and those which are not.
 
 ## Updated Features
 1. Updated all the libraries to the latest running versions.
